@@ -67,5 +67,32 @@ app.listen(port, () => {
   console.log(`Started on port ${port}`);
 });
 
+app.delete('/todos/:id', (req, res) => {
+  if (!ObjectID.isValid(req.params.id)) {
+    res.status(404).send({
+      code: 'Cool Code',
+      message: 'Invalid Todo Id'
+    });
+  }
+
+  Todo.findByIdAndRemove(req.params.id).then((todo) => {
+    if (!todo) {
+      res.status(404).send({
+        code: 'Cool Code',
+        message: 'No Todo found'
+      });
+    } else {
+      res.send({
+        code: 'Cool Code',
+        todo
+      });
+    }
+  }, (e) => {
+    res.status(400).send();
+  }).catch((e) => {
+    res.status(400).send();
+  });
+});
+
 
 module.exports = {app};
