@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const {ObjectID} = require('mongodb');
+const _ = require('lodash');
 
 var {mongoose} = require('./db/mongoose');
 var {Todo} = require('./models/Todo');
@@ -18,7 +19,10 @@ app.post('/todos', (req, res) => {
   });
 
   todo.save().then(() => {
-    res.send(todo);
+    res.send({
+      code: 'Inserted',
+      todos
+    });
   }, (e) => {
     res.status(400).send(e);
   })
@@ -27,7 +31,7 @@ app.post('/todos', (req, res) => {
 app.get('/todos', (req, res) => {
   Todo.find().then((todos) => {
     res.send({
-      code: 'Cool Code',
+      code: 'Returned',
       todos
     });
   }, (e) => {
@@ -36,10 +40,9 @@ app.get('/todos', (req, res) => {
 });
 
 app.get('/todos/:id', (req, res) => {
-
   if (!ObjectID.isValid(req.params.id)) {
     res.status(404).send({
-      code: 'Cool Code',
+      code: 'Return Failed - invalid id',
       message: 'Invalid Todo Id'
     });
   }
@@ -47,12 +50,12 @@ app.get('/todos/:id', (req, res) => {
   Todo.findById(req.params.id).then((todo) => {
     if (!todo) {
       res.status(404).send({
-        code: 'Cool Code',
+        code: 'Return Failed - nonexistant id',
         message: 'No Todo found'
       });
     } else {
       res.send({
-        code: 'Cool Code',
+        code: 'Returned',
         todo
       });
     }
@@ -70,7 +73,7 @@ app.listen(port, () => {
 app.delete('/todos/:id', (req, res) => {
   if (!ObjectID.isValid(req.params.id)) {
     res.status(404).send({
-      code: 'Cool Code',
+      code: 'Delete Failed - invalid id',
       message: 'Invalid Todo Id'
     });
   }
@@ -78,17 +81,57 @@ app.delete('/todos/:id', (req, res) => {
   Todo.findByIdAndRemove(req.params.id).then((todo) => {
     if (!todo) {
       res.status(404).send({
-        code: 'Cool Code',
+        code: 'Delete  Failed - nonexistant id',
         message: 'No Todo found'
       });
     } else {
       res.send({
-        code: 'Cool Code',
+        code: 'Deleted',
         todo
       });
     }
   }, (e) => {
     res.status(400).send();
+  }).catch((e) => {
+    res.status(400).send();
+  });
+});
+
+app.patch('/todos/:id', (req, res) => {
+  var body = _.pick(req.body, ['text', 'completed']);
+
+  if (!ObjectID.isValid(req.params.id)) {
+    res.status(404).send({
+      code: 'Update Failed - invalid id',
+      message: 'Invalid Todo Id'
+    });
+  }
+
+  if (_.isBoolean(body.completed) && body.completed) {
+    body.completedAt = new Date().getTime();
+  } else {
+    body.completed = false;
+    body.completedAt = null
+  }
+
+  console.log(body);
+
+  Todo.findByIdAndUpdate(req.params.id, {
+      $set: body
+    }, {
+      new: true
+    }).then((todo) => {
+      if (!todo) {
+        res.status(404).send({
+          code: 'Update Failed - nonexistant id',
+          message: 'No Todo found'
+      });
+    } else {
+      res.send({
+        code: 'Updated',
+        todo
+      });
+    }
   }).catch((e) => {
     res.status(400).send();
   });
