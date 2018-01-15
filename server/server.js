@@ -13,13 +13,17 @@ app.post('/todos', (req, res) => {
   console.log(req.body);
   var todo = new Todo({
     text: req.body.text
-  })
+  });
 
   todo.save().then(() => {
-    res.send(doc);
+    res.send(todo);
   }, (e) => {
-
+    res.status(400).send(e);
   })
+});
+
+app.get('/', (req, res) => {
+  res.send('Hi!');
 });
 
 app.listen(3000, () => {
