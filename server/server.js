@@ -43,8 +43,8 @@ app.get('/todos/:id', (req, res) => {
     });
   }
 
-  Todo.findById(req.params.id).then((todos) => {
-    if (!todos) {
+  Todo.findById(req.params.id).then((todo) => {
+    if (!todo) {
       res.status(404).send({
         code: 'Cool Code',
         message: 'No Todo found'
@@ -52,7 +52,7 @@ app.get('/todos/:id', (req, res) => {
     } else {
       res.send({
         code: 'Cool Code',
-        todos
+        todo
       });
     }
   }, (e) => {
