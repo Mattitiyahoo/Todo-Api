@@ -21,7 +21,7 @@ app.post('/todos', (req, res) => {
   todo.save().then(() => {
     res.send({
       code: 'Inserted',
-      todos
+      todo
     });
   }, (e) => {
     res.status(400).send(e);
@@ -113,8 +113,6 @@ app.patch('/todos/:id', (req, res) => {
     body.completed = false;
     body.completedAt = null
   }
-
-  console.log(body);
 
   Todo.findByIdAndUpdate(req.params.id, {
       $set: body
