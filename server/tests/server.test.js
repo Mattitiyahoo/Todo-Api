@@ -7,7 +7,7 @@ const {Todo} = require('./../models/Todo');
 const todos = [{
   text: 'First test todo'
 }, {
-  text: 'Second text todo'
+  text: 'Second test todo'
 }];
 
 beforeEach((done) => {
