@@ -1,12 +1,13 @@
+require('./config/config');
+
+const _ = require('lodash');
 const express = require('express');
 const bodyParser = require('body-parser');
 const {ObjectID} = require('mongodb');
-const _ = require('lodash');
 
 var {mongoose} = require('./db/mongoose');
 var {Todo} = require('./models/Todo');
 var {User} = require('./models/User');
-var config = require('./config/config');
 
 var app = express();
 const port = process.env.PORT;
@@ -14,19 +15,18 @@ const port = process.env.PORT;
 app.use(bodyParser.json());
 
 app.post('/todos', (req, res) => {
-  console.log(req.body);
   var todo = new Todo({
     text: req.body.text
   });
 
-  todo.save().then(() => {
+  todo.save().then((todo) => {
     res.send({
       code: 'Inserted',
       todo
     });
   }, (e) => {
     res.status(400).send(e);
-  })
+  });
 });
 
 app.get('/todos', (req, res) => {
@@ -124,13 +124,13 @@ app.patch('/todos/:id', (req, res) => {
         res.status(404).send({
           code: 'Update Failed - nonexistant id',
           message: 'No Todo found'
-      });
-    } else {
-      res.send({
-        code: 'Updated',
-        todo
-      });
-    }
+        });
+      } else {
+        res.send({
+          code: 'Updated',
+          todo
+        });
+      }
   }).catch((e) => {
     res.status(400).send();
   });
